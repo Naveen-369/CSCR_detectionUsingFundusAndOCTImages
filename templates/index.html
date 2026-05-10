@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Image Analysis System</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Your existing CSS styles remain exactly the same */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            min-height: 100vh;
+            color: #2c3e50;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+            margin-bottom: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(52, 73, 94, 0.3);
+        }
+
+        .header h1 {
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            font-weight: 300;
+            letter-spacing: -1px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .header .subtitle {
+            font-size: 0.95em;
+            opacity: 0.7;
+            font-weight: 300;
+        }
+
+        .main-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+            border: 1px solid #e9ecef;
+        }
+
+        .image-type-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .type-card {
+            border: 2px solid #dee2e6;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .type-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.6s;
+        }
+
+        .type-card:hover::before {
+            left: 100%;
+        }
+
+        .type-card:hover {
+            border-color: #495057;
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+        }
+
+        .type-card.selected {
+            border-color: #28a745;
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            box-shadow: 0 10px 25px rgba(40, 167, 69, 0.2);
+        }
+
+        .type-card i {
+            font-size: 3em;
+            margin-bottom: 20px;
+            color: #495057;
+            transition: color 0.3s ease;
+        }
+
+        .type-card.selected i {
+            color: #28a745;
+        }
+
+        .type-card h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .type-card p {
+            color: #6c757d;
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+
+        .upload-section {
+            margin: 40px 0;
+        }
+
+        .upload-area {
+            border: 3px dashed #dee2e6;
+            border-radius: 15px;
+            padding: 60px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            border-color: #495057;
+            background: #e9ecef;
+        }
+
+        .upload-area.dragover {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+
+        .upload-area i {
+            font-size: 4em;
+            color: #6c757d;
+            margin-bottom: 20px;
+        }
+
+        .upload-area h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #495057;
+        }
+
+        .upload-area p {
+            color: #6c757d;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+        }
+
+        .btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 8px 25px rgba(108, 117, 125, 0.4);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .preview-section {
+            margin: 40px 0;
+            text-align: center;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin: 20px 0;
+            display: none;
+        }
+
+        .results-section {
+            display: none;
+            margin-top: 40px;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            border: 1px solid #e9ecef;
+        }
+
+        .result-card h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+        }
+
+        .result-image {
+            max-width: 100%;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        .prediction-result {
+            font-size: 1.4em;
+            font-weight: 600;
+            margin: 15px 0;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .prediction-normal {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .prediction-abnormal {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .confidence-meter {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 20px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .probability-list {
+            list-style: none;
+            margin: 15px 0;
+        }
+
+        .probability-list li {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .probability-list li:last-child {
+            border-bottom: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading-spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #28a745;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .segmentation-results {
+            background: #e3f2fd;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+        }
+
+        .segmentation-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .stat-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #1976d2;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .image-type-selector {
+                grid-template-columns: 1fr;
+            }
+
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2.2em;
+            }
+
+            .main-card {
+                padding: 25px;
+            }
+        }
+
+        .model-status {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: grey;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .status-loaded {
+            background: #28a745;
+        }
+
+        .status-not-loaded {
+            background: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-eye"></i> Medical Image Analysis System</h1>
+            <p>Advanced AI-powered analysis for OCT and Fundus images</p>
+            <div class="subtitle">
+                Quantum-enhanced neural networks for precise medical diagnostics
+            </div>
+            <div class="model-status" id="modelStatus">
+                <!-- Model status will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <div class="main-card">
+            <div class="image-type-selector">
+                <div class="type-card" data-type="oct">
+                    <i class="fas fa-wave-square"></i>
+                    <h3>OCT Analysis</h3>
+                    <p>Optical Coherence Tomography image analysis for detecting retinal abnormalities including CSR</p>
+                </div>
+                <div class="type-card selected" data-type="fundus">
+                    <i class="fas fa-camera"></i>
+                    <h3>Fundus Analysis</h3>
+                    <p>Fundus image classification and macular segmentation for CSCR detection and analysis</p>
+                </div>
+            </div>
+
+            <div class="upload-section">
+                <div class="upload-area" id="uploadArea">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <h3>Upload Medical Image</h3>
+                    <p>Drag & drop your image here or click to browse</p>
+                    <p class="file-types">Supported formats: JPG, JPEG, PNG</p>
+                    <button class="btn" id="browseBtn">Browse Files</button>
+                    <input type="file" id="fileInput" class="file-input" accept=".jpg,.jpeg,.png">
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <img id="previewImage" class="preview-image" alt="Image preview">
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn" id="analyzeBtn" disabled>Analyze Image</button>
+                <button class="btn btn-secondary" id="resetBtn">Reset</button>
+            </div>
+
+            <div class="loading" id="loadingSection">
+                <div class="loading-spinner"></div>
+                <p>Analyzing image with AI models. This may take a few moments...</p>
+            </div>
+
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+        </div>
+
+        <div class="results-section" id="resultsSection">
+            <!-- Results will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        let selectedImageType = 'fundus';
+        let currentFile = null;
+
+        // DOM Elements
+        const typeCards = document.querySelectorAll('.type-card');
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const browseBtn = document.getElementById('browseBtn');
+        const previewImage = document.getElementById('previewImage');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const loadingSection = document.getElementById('loadingSection');
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+        const resultsSection = document.getElementById('resultsSection');
+        const modelStatus = document.getElementById('modelStatus');
+
+        // Initialize model status
+        fetch('/health')
+            .then(response => response.json())
+            .then(data => {
+                const models = data.models_loaded;
+                modelStatus.innerHTML = `
+                    <div class="status-item">
+                        <span class="status-dot ${models.oct ? 'status-loaded' : 'status-not-loaded'}"></span>
+                        <span>OCT Model: ${models.oct ? 'Loaded' : 'Not Available'}</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-dot ${models.fundus ? 'status-loaded' : 'status-not-loaded'}"></span>
+                        <span>Fundus Model: ${models.fundus ? 'Loaded' : 'Not Available'}</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-dot ${models.segmentation ? 'status-loaded' : 'status-not-loaded'}"></span>
+                        <span>Segmentation Model: ${models.segmentation ? 'Loaded' : 'Not Available'}</span>
+                    </div>
+                `;
+            })
+            .catch(error => {
+                console.error('Error fetching model status:', error);
+                modelStatus.innerHTML = '<div class="status-item">Unable to load model status</div>';
+            });
+
+        // Event Listeners
+        typeCards.forEach(card => {
+            card.addEventListener('click', () => {
+                typeCards.forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                selectedImageType = card.dataset.type;
+                resetAnalysis();
+            });
+        });
+
+        browseBtn.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', handleFileSelect);
+        analyzeBtn.addEventListener('click', analyzeImage);
+        resetBtn.addEventListener('click', resetAnalysis);
+
+        // Drag and drop functionality
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                handleFileSelect();
+            }
+        });
+
+        // Functions
+        function handleFileSelect() {
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            // Validate file type
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+            if (!validTypes.includes(file.type)) {
+                showError('Please upload a valid image file (JPG, JPEG, or PNG)');
+                return;
+            }
+
+            currentFile = file;
+            const reader = new FileReader();
+
+            reader.onload = (e) => {
+                previewImage.src = e.target.result;
+                previewImage.style.display = 'block';
+                analyzeBtn.disabled = false;
+                hideMessages();
+            };
+
+            reader.readAsDataURL(file);
+        }
+
+        async function analyzeImage() {
+            if (!currentFile) return;
+
+            showLoading();
+            hideMessages();
+
+            const formData = new FormData();
+            formData.append('file', currentFile);
+            formData.append('image_type', selectedImageType);
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    showResults(result);
+                    showSuccess('Analysis completed successfully!');
+                } else {
+                    showError(result.error || 'Analysis failed. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Network error. Please check your connection and try again.');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function showResults(data) {
+            const isNormal = data.prediction.toLowerCase().includes('normal') || 
+                            data.prediction.toLowerCase().includes('healthy');
+
+            let resultsHTML = `
+                <div class="main-card">
+                    <h2 style="text-align: center; margin-bottom: 30px; color: #2c3e50;">
+                        <i class="fas fa-chart-bar"></i> Analysis Results
+                    </h2>
+                    
+                    <div class="results-grid">
+                        <div class="result-card">
+                            <h3><i class="fas fa-diagnoses"></i> Classification Result</h3>
+                            <div class="prediction-result ${isNormal ? 'prediction-normal' : 'prediction-abnormal'}">
+                                ${data.prediction} (${(data.confidence * 100).toFixed(1)}% confidence)
+                            </div>
+                            
+                            <div class="confidence-meter">
+                                <div class="confidence-fill" style="width: ${data.confidence * 100}%"></div>
+                            </div>
+                            
+                            <h4>Probability Distribution:</h4>
+                            <ul class="probability-list">
+                                ${Object.entries(data.all_probabilities)
+                                    .map(([className, prob]) => `
+                                        <li>
+                                            <span>${className}</span>
+                                            <span>${(prob * 100).toFixed(1)}%</span>
+                                        </li>
+                                    `).join('')}
+                            </ul>
+                        </div>
+
+                        <div class="result-card">
+                            <h3><i class="fas fa-image"></i> Result Visualization</h3>
+                            <img src="/results/${data.result_image}" class="result-image" alt="Analysis result">
+                            <div class="action-buttons">
+                                <button class="btn" onclick="downloadResult('${data.result_image}')">
+                                    <i class="fas fa-download"></i> Download Result
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+            `;
+
+            // Add segmentation results if available
+            if (data.segmentation) {
+                resultsHTML += `
+                    <div class="segmentation-results">
+                        <h3><i class="fas fa-project-diagram"></i> Macular Segmentation Results</h3>
+                        <img src="/results/${data.segmentation.segmentation_image}" class="result-image" alt="Segmentation result">
+                        
+                        <div class="segmentation-stats">
+                            <div class="stat-item">
+                                <div class="stat-value">${data.segmentation.statistics.macular_pixels.toLocaleString()}</div>
+                                <div class="stat-label">Macular Pixels</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">${data.segmentation.statistics.total_pixels.toLocaleString()}</div>
+                                <div class="stat-label">Total Pixels</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">${data.segmentation.statistics.macular_percentage}%</div>
+                                <div class="stat-label">Macular Area</div>
+                            </div>
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button class="btn" onclick="downloadResult('${data.segmentation.segmentation_image}')">
+                                <i class="fas fa-download"></i> Download Segmentation
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            resultsHTML += `</div>`;
+            resultsSection.innerHTML = resultsHTML;
+            resultsSection.style.display = 'block';
+        }
+
+        function downloadResult(filename) {
+            window.open(`/download/${filename}`, '_blank');
+        }
+
+        function resetAnalysis() {
+            fileInput.value = '';
+            currentFile = null;
+            previewImage.style.display = 'none';
+            analyzeBtn.disabled = true;
+            resultsSection.style.display = 'none';
+            hideMessages();
+        }
+
+        function showLoading() {
+            loadingSection.style.display = 'block';
+            analyzeBtn.disabled = true;
+        }
+
+        function hideLoading() {
+            loadingSection.style.display = 'none';
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+        }
+
+        function showSuccess(message) {
+            successMessage.textContent = message;
+            successMessage.style.display = 'block';
+        }
+
+        function hideMessages() {
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
